@@ -2,8 +2,10 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.dialects.mssql import VARCHAR
 
+from database import Base
+
 # Declaring Base
-Base = declarative_base()
+#Base = declarative_base()
 
 # Facultate Table
 class Facultate(Base):
