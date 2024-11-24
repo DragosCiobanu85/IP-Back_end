@@ -21,6 +21,6 @@ app.include_router(examene.router, prefix="/examene", tags=["Examene"])
 app.include_router(cereri.router, prefix="/cereri", tags=["Cereri"])
 app.include_router(useri.router,prefix="/useri",tags=["Useri"])
 app.include_router(grupe.router,prefix="/grupe",tags=["Grupe"])
-
+#test
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.2", port=8000)
