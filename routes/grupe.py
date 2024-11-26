@@ -6,8 +6,11 @@ router = APIRouter()
 # Endpoint pentru a adăuga o grupă nouă
 @router.post("/grupe/", response_model=GrupaResponse)
 def create_grupa(grupa: GrupaCreate):
-    db_grupa = insert_grupa(grupa)
-    return db_grupa
+    try:
+        db_grupa = insert_grupa(grupa)
+        return db_grupa
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Endpoint pentru a obține o grupă după ID
 @router.get("/grupe/{grupa_id}", response_model=GrupaResponse)

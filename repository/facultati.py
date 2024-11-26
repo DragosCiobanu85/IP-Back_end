@@ -4,13 +4,18 @@ from models import Facultate
 
 
 def insert_faculate(facultate: FacultateCreate):
-    db_facultate = Facultate(nume=facultate.nume)
-    db=SessionLocal()
-    db.add(db_facultate)
-    db.commit()
-    db.refresh(db_facultate)
-    db.close()
-    return db_facultate
+    db = SessionLocal()
+    try:
+        # Validare unicitate
+        if db.query(Facultate).filter(Facultate.nume == facultate.nume).first():
+            raise ValueError("O facultate cu acest nume există deja.")
+        db_facultate = Facultate(nume=facultate.nume)
+        db.add(db_facultate)
+        db.commit()
+        db.refresh(db_facultate)
+        return db_facultate
+    finally:
+        db.close()
 
 def get_all_facultati():
     db = SessionLocal()

@@ -4,8 +4,15 @@ from database import SessionLocal
 from models import Grupa
 from dto.grupe import GrupaCreate, GrupaUpdate
 
+def grupa_exists(nume: str):
+    db = SessionLocal()
+    exists = db.query(Grupa).filter(Grupa.nume == nume).first()
+    db.close()
+    return exists is not None
 # Funcție pentru a adăuga o grupă nouă
 def insert_grupa( grupa: GrupaCreate):
+    if grupa_exists(grupa.nume):
+        raise ValueError("Grupa cu acest nume există deja.")
     db_grupa = Grupa(nume=grupa.nume, facultate_id=grupa.facultate_id)
     db = SessionLocal()
     db.add(db_grupa)

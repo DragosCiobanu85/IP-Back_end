@@ -7,8 +7,10 @@ router = APIRouter()
 
 @router.post("/", response_model=FacultateResponse)
 def create_facultate(facultate: FacultateCreate):
-    print("jnfmd")
-    return insert_faculate(facultate)
+    try:
+        return insert_faculate(facultate)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/", response_model=List[FacultateResponse])
 def read_facultati():
