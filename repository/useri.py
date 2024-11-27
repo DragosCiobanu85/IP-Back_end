@@ -7,6 +7,9 @@ from dto.useri import UserCreate, UserUpdate
 # Funcție pentru a adăuga un user nou
 def insert_user(user: UserCreate):
     db = SessionLocal()
+    existing_user = db.query(User).filter(User.email == user.email).first()
+    if existing_user:
+        raise ValueError("Email-ul există deja în sistem.")
     db_user = User(email=user.email, parola=user.parola, rol=user.rol)
     db.add(db_user)
     db.commit()

@@ -9,8 +9,11 @@ router = APIRouter()
 # Endpoint pentru a adăuga un profesor
 @router.post("/profesori/", response_model=ProfesorResponse)
 def create_profesor(profesor: ProfesorCreate):
-    db_profesor = insert_profesor(profesor)
-    return db_profesor
+    try:
+        db_profesor = insert_profesor(profesor)
+        return db_profesor
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Endpoint pentru a obține toți profesorii
 @router.get("/profesori/", response_model=List[ProfesorResponse])

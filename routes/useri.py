@@ -8,8 +8,11 @@ router = APIRouter()
 # Endpoint pentru a adăuga un user nou
 @router.post("/users/", response_model=UserResponse)
 def create_user(user: UserCreate):
-    db_user = insert_user(user)
-    return db_user
+    try:
+        db_user = insert_user(user)
+        return db_user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Endpoint pentru a obține un user după ID
 @router.get("/users/{user_id}", response_model=UserResponse)

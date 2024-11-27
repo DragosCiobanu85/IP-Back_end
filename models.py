@@ -24,6 +24,9 @@ class User(Base):
     __table_args__ = (
         CheckConstraint("rol IN ('Student', 'Profesor')", name="check_user_role"),
     )
+    student = relationship('Student', back_populates='user', uselist=False)
+    profesor = relationship('Profesor', back_populates='user', uselist=False)
+
 class Grupa(Base):
     __tablename__ = 'Grupa'
     id_Grupa = Column(Integer, primary_key=True, autoincrement=True)
@@ -38,7 +41,10 @@ class Student(Base):
     nume = Column(VARCHAR(50), nullable=False)
     prenume = Column(VARCHAR(50), nullable=False)
     grupa_id = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
+    id_user = Column(Integer, ForeignKey('User.id_user'), nullable=False, unique=True)
+
     grupa = relationship('Grupa')
+    user = relationship('User', back_populates='student')
 
 
 # Profesor Table
@@ -49,7 +55,10 @@ class Profesor(Base):
     prenume = Column(VARCHAR(50), nullable=False)
     grad = Column(VARCHAR(50))
     id_Facultate = Column(Integer, ForeignKey('Facultate.id_Facultate'), nullable=False)
+    id_user = Column(Integer, ForeignKey('User.id_user'), nullable=False, unique=True)
+
     facultate = relationship('Facultate')
+    user = relationship('User', back_populates='profesor')
 
 # Materie Table
 class Materie(Base):

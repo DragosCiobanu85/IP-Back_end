@@ -6,6 +6,7 @@ class StudentBase(BaseModel):
     nume: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z\s-]+$", min_length=2, max_length=50)]
     prenume: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z\s-]+$", min_length=2, max_length=50)]
     grupa_id: int
+    id_user: int
 
     class Config:
         from_attributes = True
@@ -26,3 +27,4 @@ class StudentUpdate(BaseModel):
     nume: Optional[Annotated[str, StringConstraints(pattern=r"^[a-zA-Z\s-]+$", min_length=2, max_length=50)]]
     prenume: Optional[Annotated[str, StringConstraints(pattern=r"^[a-zA-Z\s-]+$", min_length=2, max_length=50)]]
     grupa_id: Optional[int]
+    id_user: Optional[int]

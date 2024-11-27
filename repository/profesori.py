@@ -6,11 +6,22 @@ from models import Profesor
 def insert_profesor(profesor: ProfesorCreate):
     db = SessionLocal()
     try:
+        # Verificare unicitate
+        existing_profesor = db.query(Profesor).filter(
+            Profesor.nume == profesor.nume,
+            Profesor.prenume == profesor.prenume,
+            Profesor.id_Facultate == profesor.id_Facultate,
+            Profesor.id_user == profesor.id_user
+        ).first()
+        if existing_profesor:
+            raise ValueError("Un profesor cu acest nume și prenume există deja în această facultate.")
+
         db_profesor = Profesor(
             nume=profesor.nume,
             prenume=profesor.prenume,
             grad=profesor.grad,
-            id_Facultate=profesor.id_Facultate
+            id_Facultate=profesor.id_Facultate,
+            id_user=profesor.id_user
         )
         db.add(db_profesor)
         db.commit()
@@ -59,6 +70,7 @@ def update_profesor(profesor_id: int, profesor_data: ProfesorUpdate):
         profesor.prenume = profesor_data.prenume
         profesor.grad = profesor_data.grad
         profesor.id_Facultate = profesor_data.id_Facultate
+        profesor.id_user = profesor_data.id_user
 
         db.commit()
         db.refresh(profesor)

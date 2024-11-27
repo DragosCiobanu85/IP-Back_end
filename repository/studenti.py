@@ -20,7 +20,8 @@ def insert_student( student: StudentCreate):
     db_student = Student(
         nume=student.nume,
         prenume=student.prenume,
-        grupa_id=student.grupa_id
+        grupa_id=student.grupa_id,
+        id_user=student.id_user
     )
     db.add(db_student)
     db.commit()
@@ -57,7 +58,8 @@ def update_student(student_id: int, student_data: StudentUpdate):
             student.prenume = student_data.prenume
         if student_data.grupa_id is not None:
             student.grupa_id = student_data.grupa_id
-
+        if student_data.user_id is not None:
+            student.user_id = student_data.user_id
         # Salvăm modificările
         db.commit()
         db.refresh(student)

@@ -1,8 +1,8 @@
 """Initial migration from SQL schema
 
-Revision ID: bcf48f8e2780
+Revision ID: eb2eb3a2a127
 Revises: 
-Create Date: 2024-11-23 22:36:10.638556
+Create Date: 2024-11-27 10:30:08.302124
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'bcf48f8e2780'
+revision: str = 'eb2eb3a2a127'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -48,8 +48,11 @@ def upgrade() -> None:
     sa.Column('prenume', sa.VARCHAR(length=50), nullable=False),
     sa.Column('grad', sa.VARCHAR(length=50), nullable=True),
     sa.Column('id_Facultate', sa.Integer(), nullable=False),
+    sa.Column('id_user', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['id_Facultate'], ['Facultate.id_Facultate'], ),
-    sa.PrimaryKeyConstraint('id_Profesor')
+    sa.ForeignKeyConstraint(['id_user'], ['User.id_user'], ),
+    sa.PrimaryKeyConstraint('id_Profesor'),
+    sa.UniqueConstraint('id_user')
     )
     op.create_table('Facultate_Profesor',
     sa.Column('id_Facultate', sa.Integer(), nullable=False),
@@ -73,8 +76,11 @@ def upgrade() -> None:
     sa.Column('nume', sa.VARCHAR(length=50), nullable=False),
     sa.Column('prenume', sa.VARCHAR(length=50), nullable=False),
     sa.Column('grupa_id', sa.Integer(), nullable=False),
+    sa.Column('id_user', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['grupa_id'], ['Grupa.id_Grupa'], ),
-    sa.PrimaryKeyConstraint('id_Student')
+    sa.ForeignKeyConstraint(['id_user'], ['User.id_user'], ),
+    sa.PrimaryKeyConstraint('id_Student'),
+    sa.UniqueConstraint('id_user')
     )
     op.create_table('Cerere',
     sa.Column('id_Cerere', sa.Integer(), autoincrement=True, nullable=False),
