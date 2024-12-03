@@ -21,6 +21,11 @@ def get_user_by_id( user_id: int):
     db = SessionLocal()
     return db.query(User).filter(User.id_user == user_id).first()
 
+# Funcție pentru a obține un user după Email
+def get_user_by_email(email: str):
+    db = SessionLocal()
+    return db.query(User).filter(User.email == email).first()
+
 # Funcție pentru a obține toți userii
 def get_all_users():
     db = SessionLocal()
