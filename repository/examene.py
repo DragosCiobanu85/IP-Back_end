@@ -9,9 +9,13 @@ def insert_examen(examen: ExamenCreate):
     db = SessionLocal()
     try:
         db_examen = Examen(
-            ora=examen.ora,
-            sala=examen.sala,
+            id_Facultate=examen.id_Facultate,
             id_Profesor=examen.id_Profesor,
+            id_Profesor_1=examen.id_Profesor_1,
+            id_Materie=examen.id_Materie,
+            data=examen.data,
+            id_Sala=examen.id_Sala,
+            ora=examen.ora,
             id_Cerere=examen.id_Cerere
         )
         db.add(db_examen)

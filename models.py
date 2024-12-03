@@ -88,7 +88,7 @@ class Cerere(Base):
     id_Materie = Column(Integer, ForeignKey('Materie.id_Materie'), nullable=False)
     id_Profesor = Column(Integer, ForeignKey('Profesor.id_Profesor'), nullable=False)
     data = Column(Date, nullable=False)
-    status = Column(VARCHAR(20), nullable=False)
+    status = Column(VARCHAR(20), nullable=True)
     facultate = relationship('Facultate')
     materie = relationship('Materie')
     profesor = relationship('Profesor')
@@ -101,11 +101,19 @@ class Cerere(Base):
 class Examen(Base):
     __tablename__ = 'Examen'
     id_Examen = Column(Integer, primary_key=True, autoincrement=True)
+    id_Facultate = Column(Integer, ForeignKey('Facultate.id_Facultate'), nullable=False)
+    id_Profesor = Column(Integer, ForeignKey('Profesor.id_Profesor'),nullable=False)
+    id_Profesor_1 = Column(Integer, ForeignKey('Profesor.id_Profesor'),nullable=False)  # Foreign Key to Profesor for Assistant
+    id_Materie = Column(Integer, ForeignKey('Materie.id_Materie'), nullable=False)
+    data = Column(Date, nullable=False)
+    id_Sala = Column(Integer, ForeignKey('Sala.id_Sala'),nullable=False)
     ora = Column(Time, nullable=False)
-    sala = Column(VARCHAR(20), nullable=False)
-    id_Profesor = Column(Integer, ForeignKey('Profesor.id_Profesor'),nullable=False)  # Foreign Key to Profesor for Assistant
-    id_Cerere = Column(Integer, ForeignKey('Cerere.id_Cerere'), nullable=False)
-    profesor = relationship('Profesor')
+    id_Cerere = Column(Integer, ForeignKey('Cerere.id_Cerere', ondelete='CASCADE'), nullable=False)
+    facultate=relationship('Facultate')
+    materie=relationship('Materie')
+    sala=relationship('Sala')
+    profesor = relationship('Profesor', foreign_keys=[id_Profesor])  # Profesor principal
+    asistent = relationship('Profesor', foreign_keys=[id_Profesor_1])
     cerere = relationship('Cerere')
 
 # Facultate_Profesor Table (Link Table)
@@ -117,5 +125,10 @@ class FacultateProfesor(Base):
 # Asistent_Examen Table (Link Table)
 class AsistentExamen(Base):
     __tablename__ = 'Asistent_Examen'
-    id_Profesor = Column(Integer, ForeignKey('Profesor.id_Profesor'), primary_key=True, nullable=False)
+    id_Profesor_1 = Column(Integer, ForeignKey('Profesor.id_Profesor'), primary_key=True, nullable=False)
     id_Examen = Column(Integer, ForeignKey('Examen.id_Examen'), primary_key=True, nullable=False)
+
+class Sala(Base):
+    __tablename__ = 'Sala'
+    id_Sala = Column(Integer, primary_key=True, autoincrement=True)
+    nume = Column(VARCHAR(50), nullable=False)

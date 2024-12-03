@@ -12,7 +12,7 @@ def insert_cerere(cerere: CerereCreate):
             id_Facultate=cerere.id_Facultate,
             id_Materie=cerere.id_Materie,
             data=cerere.data,
-            status=cerere.status
+            
         )
         db.add(db_cerere)
         db.commit()
@@ -40,8 +40,10 @@ def update_cerere(cerere_id: int, cerere_data: CerereUpdate):
         cerere = db.query(Cerere).filter(Cerere.id_Cerere == cerere_id).first()
         if not cerere:
             return None
-        cerere.status = cerere_data.status
-
+        cerere.id_Facultate = cerere_data.id_Facultate
+        cerere.id_Profesor = cerere_data.id_Profesor
+        cerere.id_Materie = cerere_data.id_Materie
+        cerere.data=cerere_data.data
         db.commit()
         db.refresh(cerere)
         return cerere

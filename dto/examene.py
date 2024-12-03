@@ -1,12 +1,16 @@
 from pydantic import BaseModel, conint
-from datetime import time
+from datetime import time, date
 
 
 # Modelul de bază pentru Examen
 class ExamenBase(BaseModel):
-    ora: time
-    sala: str
+    id_Facultate: int
     id_Profesor: int
+    id_Profesor_1: int
+    id_Materie: int
+    data: date
+    id_Sala: int
+    ora: time 
     id_Cerere: int
 
 
