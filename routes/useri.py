@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from dto.useri import UserResponse, UserCreate, UserUpdate, UserLogin
+from dto.useri import UserResponse, UserCreate, UserUpdate, UserLogin, UserBase
 from repository.useri import insert_user, get_user_by_id, get_all_users, delete_user, update_user, get_user_by_email
 #from passlib.context import CryptContext
 
@@ -12,14 +12,12 @@ router = APIRouter()
 #de criptat parola - in create_user
 # hashed_password = hash_password(user.password)
 # user.password = hashed_password  # Înlocuim parola cu cea criptată
-@router.post("/users/{login}", response_model=UserResponse)
-def login_user(user: UserLogin):
-    user = get_user_by_email(user.email)
-    if not user or user.parola != user.password:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    return {"message": "Login successful", "user_id": user.id_user}
-
-
+@router.post("/users/{login}", response_model=UserLogin)
+def login_user(user: UserLogin):  # Accept the UserLogin model from the request body
+    user_from_db = get_user_by_email(user.email)
+    if not user_from_db or user_from_db.parola != user.parola:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    return user_from_db
 # Endpoint pentru a adăuga un user nou
 @router.post("/users/", response_model=UserResponse)
 def create_user(user: UserCreate):

@@ -41,4 +41,4 @@ class UserResponse(UserBase):
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    parola: str
