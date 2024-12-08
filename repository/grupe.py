@@ -13,7 +13,7 @@ def grupa_exists(nume: str):
 def insert_grupa( grupa: GrupaCreate):
     if grupa_exists(grupa.nume):
         raise ValueError("Grupa cu acest nume există deja.")
-    db_grupa = Grupa(nume=grupa.nume, facultate_id=grupa.facultate_id)
+    db_grupa = Grupa(nume=grupa.nume, id_Facultate=grupa.id_Facultate)
     db = SessionLocal()
     db.add(db_grupa)
     db.commit()

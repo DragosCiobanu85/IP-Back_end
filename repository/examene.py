@@ -1,17 +1,23 @@
 from sqlalchemy.orm import Session
 from database import SessionLocal
-from models import Examen
+from models import Examen, User
+from fastapi import Depends
+from repository.profesori import get_profesor_by_user_id
 from dto.examene import ExamenCreate, ExamenUpdate
+from auth import get_current_user
 
 
 # Funcție pentru a adăuga un examen nou
-def insert_examen(examen: ExamenCreate):
+def insert_examen(examen: ExamenCreate, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
+
+        profesor = get_profesor_by_user_id(current_user.id_user)
         db_examen = Examen(
             id_Facultate=examen.id_Facultate,
-            id_Profesor=examen.id_Profesor,
+            id_Grupa=examen.id_Grupa,
             id_Profesor_1=examen.id_Profesor_1,
+            id_Profesor=profesor.id_Profesor,
             id_Materie=examen.id_Materie,
             data=examen.data,
             id_Sala=examen.id_Sala,

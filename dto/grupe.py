@@ -3,16 +3,17 @@ from typing import Optional,Annotated
 
 class GrupaBase(BaseModel):
     nume: Annotated[str, StringConstraints(pattern=r"^\d{4}$")]
-    facultate_id: int
+    id_Facultate: int
 
 class GrupaCreate(GrupaBase):
     pass
 
 class GrupaUpdate(BaseModel):
     nume: Optional[Annotated[str, StringConstraints(pattern=r"^\d{4}$")]]
-    facultate_id: Optional[int]
+    id_Facultate: Optional[int]
 
 class GrupaResponse(GrupaBase):
+    
     id_Grupa: int
 
     class Config:

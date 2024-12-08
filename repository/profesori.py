@@ -1,6 +1,8 @@
 from database import SessionLocal
 from dto.profesori import ProfesorCreate, ProfesorUpdate
 from models import Profesor
+from sqlalchemy.orm import Session
+
 
 # Funcție pentru a adăuga un profesor nou
 def insert_profesor(profesor: ProfesorCreate):
@@ -30,6 +32,13 @@ def insert_profesor(profesor: ProfesorCreate):
     except Exception as e:
         db.rollback()
         raise e
+    finally:
+        db.close()
+
+def get_profesor_by_user_id(user_id: int):
+    db = SessionLocal()  # Asigură-te că folosești conexiunea corectă la DB
+    try:
+        return db.query(Profesor).filter(Profesor.id_user == user_id).first()
     finally:
         db.close()
 

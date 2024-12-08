@@ -18,7 +18,7 @@ class User(Base):
     __tablename__ = 'User'
     id_user = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(VARCHAR(100), nullable=False, unique=True)
-    parola = Column(VARCHAR(50), nullable=False)
+    parola = Column(VARCHAR(450), nullable=False)
     rol = Column(VARCHAR(20), nullable=False)  # Role can be 'Student' or 'Profesor'
 
     __table_args__ = (
@@ -31,7 +31,7 @@ class Grupa(Base):
     __tablename__ = 'Grupa'
     id_Grupa = Column(Integer, primary_key=True, autoincrement=True)
     nume = Column(VARCHAR(10), nullable=False, unique=True)
-    facultate_id = Column(Integer, ForeignKey('Facultate.id_Facultate'), nullable=False)
+    id_Facultate = Column(Integer, ForeignKey('Facultate.id_Facultate'), nullable=False)
     facultate = relationship('Facultate')
 
 # Student Table
@@ -40,7 +40,7 @@ class Student(Base):
     id_Student = Column(Integer, primary_key=True, autoincrement=True)
     nume = Column(VARCHAR(50), nullable=False)
     prenume = Column(VARCHAR(50), nullable=False)
-    grupa_id = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
+    id_Grupa = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
     id_user = Column(Integer, ForeignKey('User.id_user'), nullable=False, unique=True)
 
     grupa = relationship('Grupa')
@@ -87,11 +87,15 @@ class Cerere(Base):
     id_Facultate = Column(Integer, ForeignKey('Facultate.id_Facultate'), nullable=False)
     id_Materie = Column(Integer, ForeignKey('Materie.id_Materie'), nullable=False)
     id_Profesor = Column(Integer, ForeignKey('Profesor.id_Profesor'), nullable=False)
+    id_Student = Column(Integer, ForeignKey('Student.id_Student'), nullable=False)
+    id_Grupa = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
     data = Column(Date, nullable=False)
     status = Column(VARCHAR(20), nullable=True)
+    grupa = relationship('Grupa')
     facultate = relationship('Facultate')
     materie = relationship('Materie')
     profesor = relationship('Profesor')
+    student = relationship('Student')
     # Constrângerea pentru status
     __table_args__ = (
         CheckConstraint("status IN ('in asteptare', 'acceptata', 'respinsa')", name="check_cerere_status"),
@@ -105,10 +109,12 @@ class Examen(Base):
     id_Profesor = Column(Integer, ForeignKey('Profesor.id_Profesor'),nullable=False)
     id_Profesor_1 = Column(Integer, ForeignKey('Profesor.id_Profesor'),nullable=False)  # Foreign Key to Profesor for Assistant
     id_Materie = Column(Integer, ForeignKey('Materie.id_Materie'), nullable=False)
+    id_Grupa = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
     data = Column(Date, nullable=False)
     id_Sala = Column(Integer, ForeignKey('Sala.id_Sala'),nullable=False)
     ora = Column(Time, nullable=False)
-    id_Cerere = Column(Integer, ForeignKey('Cerere.id_Cerere', ondelete='CASCADE'), nullable=False)
+    id_Cerere = Column(Integer, ForeignKey('Cerere.id_Cerere', ondelete='CASCADE'), nullable=True)
+    grupa= relationship('Grupa')
     facultate=relationship('Facultate')
     materie=relationship('Materie')
     sala=relationship('Sala')

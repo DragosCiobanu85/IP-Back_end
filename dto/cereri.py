@@ -8,9 +8,6 @@ class CerereBase(BaseModel):
     id_Materie: int
     data: date
     
-
-   
-
 # Model pentru crearea unei cereri
 class CerereCreate(CerereBase):
     pass
@@ -25,6 +22,8 @@ class CerereUpdate(BaseModel):
 # Model pentru răspunsul unui endpoint
 class CerereResponse(CerereBase):
     id_Cerere: int
+    id_Student: int
+    id_Grupa: int
 
     class Config:
         from_attributes = True

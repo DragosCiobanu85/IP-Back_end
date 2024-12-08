@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+
 
 from database import SessionLocal
 from models import Student
@@ -8,6 +8,17 @@ from dto.studenti import StudentCreate, StudentUpdate
 def get_all_students():
     db = SessionLocal()
     return db.query(Student).all()
+
+
+# repository/studenti.py
+def get_student_by_user_id(user_id: int):
+    db = SessionLocal()  # Asigură-te că folosești conexiunea corectă la DB
+    try:
+        return db.query(Student).filter(Student.id_user == user_id).first()
+    finally:
+        db.close()
+
+
 
 
 def get_student_by_id( student_id: int):
@@ -20,7 +31,7 @@ def insert_student( student: StudentCreate):
     db_student = Student(
         nume=student.nume,
         prenume=student.prenume,
-        grupa_id=student.grupa_id,
+        id_Grupa=student.id_Grupa,
         id_user=student.id_user
     )
     db.add(db_student)
