@@ -9,7 +9,7 @@ from repository.studenti import (
 from dto.studenti import StudentCreate, StudentResponse,StudentUpdate
 
 
-router = APIRouter(prefix="/studenti", tags=["Studenti"])
+router = APIRouter()
 
 
 @router.get("/", response_model=list[StudentResponse])

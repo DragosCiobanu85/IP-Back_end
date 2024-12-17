@@ -13,38 +13,27 @@ router = APIRouter()
 # Endpoint pentru a adăuga o cerere
 @router.post("/cereri/", response_model=CerereResponse)
 def create_cerere(
-    cerere_data: CerereCreate,
-    current_user: User = Depends(get_current_user)
+        cerere_data: CerereCreate,
+        current_user: User = Depends(get_current_user)
 ):
     db = SessionLocal()
     try:
-        print(f"current_user: {current_user.rol}")
-        # Verificăm dacă utilizatorul curent este student
-        
-
         if current_user.rol != "Student":
             raise HTTPException(status_code=403, detail="Doar studenții pot crea cereri.")
 
-        # Găsim studentul pe baza id_user al utilizatorului curent
         student = get_student_by_user_id(current_user.id_user)
-        
-        # Verificăm dacă am găsit studentul
-        if student:
-            print(f"Student găsit: {student.id_Student}")
-        else:
-            print(f"Studentul cu id_user {current_user.id_user} nu a fost găsit.")
-        
+
         if not student:
             raise HTTPException(status_code=404, detail="Studentul nu a fost găsit.")
 
-        # Creăm cererea și completăm automat id_Student
         new_cerere = Cerere(
             id_Profesor=cerere_data.id_Profesor,
             id_Facultate=cerere_data.id_Facultate,
             id_Materie=cerere_data.id_Materie,
-            id_Student=student.id_Student, 
-            id_Grupa=student.id_Grupa, # Autocompletăm id_grupa
-            data=cerere_data.data
+            id_Student=student.id_Student,
+            id_Grupa=student.id_Grupa,
+            data=cerere_data.data,
+            status=cerere_data.status  # Setăm status-ul
         )
 
         print(f"Creare cerere cu id_Student: {student.id_Student}, id_Profesor: {cerere_data.id_Profesor}")
@@ -81,14 +70,48 @@ def update_cerere_endpoint(cerere_id: int, cerere: CerereUpdate, current_user: U
     The `user_id` will be automatically extracted from the JWT token.
     """
     print(f"Actualizare cerere cu id: {cerere_id}")
-    # Now, we pass `user_id` instead of `token`
+
     student = get_student_by_user_id(current_user.id_user)
     updated_cerere = update_cerere(cerere_id, cerere, student.id_user)
-    
+
     if not updated_cerere:
         raise HTTPException(status_code=404, detail="Cerere not found")
     
     return updated_cerere
+
+
+@router.put("/cereri/{cerere_id}/status", response_model=CerereResponse)
+def update_status(cerere_id: int, status: str, current_user: User = Depends(get_current_user)):
+    """
+    Endpoint pentru actualizarea statusului unei cereri.
+    Numai profesorii pot schimba statusul.
+    """
+    db = SessionLocal()
+    try:
+        # Verificăm dacă utilizatorul este profesor
+        if current_user.rol != "Profesor":
+            raise HTTPException(status_code=403, detail="Doar profesorii pot actualiza statusul cererilor.")
+
+        cerere = db.query(Cerere).filter(Cerere.id_Cerere == cerere_id).first()
+        if not cerere:
+            raise HTTPException(status_code=404, detail="Cererea nu a fost găsită.")
+
+        # Validare status
+        if status not in ["acceptata", "respinsa"]:
+            raise HTTPException(status_code=400, detail="Statusul trebuie să fie 'acceptata' sau 'respinsa'.")
+
+        # Actualizăm statusul
+        cerere.status = status
+        db.commit()
+        db.refresh(cerere)
+        return cerere
+
+    except Exception as e:
+        db.rollback()
+        raise e
+    finally:
+        db.close()
+
 
 # Endpoint pentru ștergerea unei cereri
 @router.delete("/cereri/{cerere_id}", response_model=CerereResponse)

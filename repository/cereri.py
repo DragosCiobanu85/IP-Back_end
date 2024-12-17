@@ -12,21 +12,21 @@ from repository.studenti import get_student_by_user_id
 def insert_cerere(cerere: CerereCreate, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
-        # Obține studentul pe baza id_user (acesta este un user logat, deci va fi student dacă este cazul)
         student = get_student_by_user_id(current_user)
 
-        # Verifică dacă studentul există
         if not student:
             raise HTTPException(status_code=404, detail="Studentul nu a fost găsit.")
+        # Setăm status-ul implicit dacă nu este furnizat
+        statuss = cerere.status if cerere.status else "in asteptare"
 
-        # Crează cererea și autocomplează id_Student
         db_cerere = Cerere(
             id_Profesor=cerere.id_Profesor,
             id_Facultate=cerere.id_Facultate,
             id_Student=student.id_Student,
-            id_Grupa= student.id_Grupa,  # Completează automat id_Student
+            id_Grupa=student.id_Grupa,
             id_Materie=cerere.id_Materie,
             data=cerere.data,
+            status=statuss  # Setăm status-ul
         )
 
         db.add(db_cerere)
@@ -88,49 +88,34 @@ def get_all_cereri(current_user_email: str = None):
 def update_cerere(cerere_id: int, cerere_data: CerereUpdate, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
-        # Obține studentul pe baza id_user (autentificat)
         student = get_student_by_user_id(current_user)
-        
-        # Verifică dacă studentul există
+
         if not student:
-            raise HTTPException(status_code=404, detail="Studentul nu a fost găsit pentru acest utilizator.")
-        print(f"Student găsit: ID Student = {student.id_Student}, ID Grupă = {student.id_Grupa}")
-        
-        # Verifică dacă grupa există
-        grupa = db.query(Grupa).filter(Grupa.id_Grupa == student.id_Grupa).first()
-        if not grupa:
-            raise HTTPException(status_code=404, detail="Grupa nu a fost găsită pentru acest student.")
-        print(f"Grupă găsită: ID Grupă = {grupa.id_Grupa}")
-        
-        # Caută cererea în baza de date
+            raise HTTPException(status_code=404, detail="Studentul nu a fost găsit.")
+
         cerere = db.query(Cerere).filter(Cerere.id_Cerere == cerere_id).first()
         if not cerere:
             raise HTTPException(status_code=404, detail=f"Cererea cu ID-ul {cerere_id} nu a fost găsită.")
-        print(f"Cerere găsită înainte de actualizare: {cerere.__dict__}")
 
-        # Actualizează câmpurile cererii
+        # Actualizăm câmpurile cererii
         cerere.id_Facultate = cerere_data.id_Facultate
         cerere.id_Profesor = cerere_data.id_Profesor
         cerere.id_Materie = cerere_data.id_Materie
-        cerere.id_Student = student.id_Student  # Autocompletare automată
-        cerere.id_Grupa = grupa.id_Grupa        # Autocompletare automată
+        cerere.id_Student = student.id_Student
+        cerere.id_Grupa = student.id_Grupa
         cerere.data = cerere_data.data
 
-        # Salvează modificările
+        if cerere_data.status:  # Verificăm dacă status-ul a fost transmis
+            cerere.status = cerere_data.status
+
         db.commit()
         db.refresh(cerere)
-        print(f"Cerere actualizată cu succes: {cerere.__dict__}")
-        
         return cerere
-    
     except Exception as e:
-        db.rollback()  # Revoc modificările în caz de eroare
-        print(f"Eroare neașteptată: {e}")
-        raise HTTPException(status_code=500, detail="A apărut o eroare internă în timpul actualizării cererii.")
-    
+        db.rollback()
+        raise e
     finally:
         db.close()
-        print("Conexiunea la baza de date a fost închisă.")
 
 
 

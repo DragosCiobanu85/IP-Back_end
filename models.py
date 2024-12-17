@@ -90,7 +90,7 @@ class Cerere(Base):
     id_Student = Column(Integer, ForeignKey('Student.id_Student'), nullable=False)
     id_Grupa = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
     data = Column(Date, nullable=False)
-    status = Column(VARCHAR(20), nullable=True)
+    status = Column(VARCHAR(20), nullable=False)
     grupa = relationship('Grupa')
     facultate = relationship('Facultate')
     materie = relationship('Materie')
