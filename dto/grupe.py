@@ -4,6 +4,7 @@ from typing import Optional,Annotated
 class GrupaBase(BaseModel):
     nume: Annotated[str, StringConstraints(pattern=r"^\d{4}$")]
     id_Facultate: int
+    id_An_Studiu: int
 
 class GrupaCreate(GrupaBase):
     pass

@@ -32,7 +32,9 @@ class Grupa(Base):
     id_Grupa = Column(Integer, primary_key=True, autoincrement=True)
     nume = Column(VARCHAR(10), nullable=False, unique=True)
     id_Facultate = Column(Integer, ForeignKey('Facultate.id_Facultate'), nullable=False)
+    id_An_Studiu = Column(Integer, ForeignKey('An_Studiu.id_An_Studiu'), nullable=False)
     facultate = relationship('Facultate')
+    an_studiu=relationship('An_Studiu')
 
 # Student Table
 class Student(Base):
@@ -42,7 +44,8 @@ class Student(Base):
     prenume = Column(VARCHAR(50), nullable=False)
     id_Grupa = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
     id_user = Column(Integer, ForeignKey('User.id_user'), nullable=False, unique=True)
-
+    id_Specializare = Column(Integer, ForeignKey('Specializare.id_Specializare'), nullable=False)
+    specializare = relationship('Specializare')
     grupa = relationship('Grupa')
     user = relationship('User', back_populates='student')
 
@@ -67,9 +70,12 @@ class Materie(Base):
     nume = Column(VARCHAR(50), nullable=False)
     id_Profesor = Column(Integer, ForeignKey('Profesor.id_Profesor'), nullable=False)
     tip_examen = Column(VARCHAR(50))
-    an_studiu = Column(Integer)
+    id_An_Studiu = Column(Integer, ForeignKey('An_Studiu.id_An_Studiu'), nullable=False)
+    id_Specializare = Column(Integer, ForeignKey('Specializare.id_Specializare'), nullable=False)
+    specializare = relationship('Specializare')
     semestru = Column(Integer)
     profesor = relationship('Profesor')
+    an_studiu=relationship('An_Studiu')
 
 # Grupa_Examen Table (Link Table)
 class GrupaExamen(Base):
@@ -138,3 +144,19 @@ class Sala(Base):
     __tablename__ = 'Sala'
     id_Sala = Column(Integer, primary_key=True, autoincrement=True)
     nume = Column(VARCHAR(50), nullable=False)
+
+class Specializare(Base):
+    __tablename__ = 'Specializare'
+    id_Specializare = Column(Integer, primary_key=True, autoincrement=True)
+    nume = Column(VARCHAR(50), nullable=False)
+    id_Facultate = Column(Integer, ForeignKey('Facultate.id_Facultate'), nullable=False)
+    facultate=relationship('Facultate')
+
+class An_Studiu(Base):
+    __tablename__ = 'An_Studiu'
+    id_An_Studiu = Column(Integer, primary_key=True, autoincrement=True)
+    an_studiu = Column(Integer, nullable=False)
+
+
+
+

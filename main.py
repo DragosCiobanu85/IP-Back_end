@@ -1,12 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
 import uvicorn
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware  # Adăugăm importul pentru CORS
 
 from database import SessionLocal, engine
 import models
-from routes import facultati, studenti, profesori, materii, examene, cereri, useri, grupe, sali
+from routes import facultati, studenti, profesori, materii, examene, cereri, useri, grupe, sali, specializare, an_studiu
+
+
 
 # Crează tabelele în baza de date (dacă nu există deja)
 models.Base.metadata.create_all(bind=engine)
@@ -37,6 +39,8 @@ app.include_router(cereri.router, prefix="/cereri", tags=["Cereri"])
 app.include_router(useri.router, prefix="/useri", tags=["Useri"])
 app.include_router(grupe.router, prefix="/grupe", tags=["Grupe"])
 app.include_router(sali.router, prefix="/sali", tags=["Sali"])
+app.include_router(specializare.router, prefix="/specializare", tags=["Specializare"])
+app.include_router(an_studiu.router, prefix="/anstudiu", tags=["An_Sudiu"])
 
 # Test: rulează aplicația FastAPI
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ class StudentBase(BaseModel):
     prenume: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z\s-]+$", min_length=2, max_length=50)]
     id_Grupa: int
     id_user: int
+    id_Specializare: int
 
     class Config:
         from_attributes = True

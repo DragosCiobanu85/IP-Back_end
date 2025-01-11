@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from dto.facultati import FacultateCreate, FacultateResponse
-from repository.facultati import insert_faculate, get_all_facultati, remove_facultate
+from repository.facultati import insert_facultate, get_all_facultati, remove_facultate
 
 router = APIRouter()
 
 @router.post("/", response_model=FacultateResponse)
 def create_facultate(facultate: FacultateCreate):
     try:
-        return insert_faculate(facultate)
+        return insert_facultate(facultate)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

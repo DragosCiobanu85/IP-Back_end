@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from database import SessionLocal
-from models import Materie
+from models import Materie, Profesor
 from dto.materii import MaterieCreate, MaterieUpdate
 
 # Funcție pentru a adăuga o materie nouă
@@ -11,7 +11,8 @@ def insert_materie(materie: MaterieCreate):
             nume=materie.nume,
             id_Profesor=materie.id_Profesor,
             tip_examen=materie.tip_examen,
-            an_studiu=materie.an_studiu,
+            id_An_Studiu=materie.id_An_Studiu,
+            id_Specializare=materie.id_Specializare,
             semestru=materie.semestru
         )
         db.add(db_materie)
@@ -30,6 +31,18 @@ def get_all_materii():
     try:
         materii = db.query(Materie).all()
         return materii
+    finally:
+        db.close()
+
+# Funcție pentru a obține profesorul asociat unei materii
+def get_profesor_by_materie(id_materie: int):
+    db = SessionLocal()
+    try:
+        materie = db.query(Materie).filter(Materie.id_Materie == id_materie).first()
+        if not materie:
+            return None
+        profesor = db.query(Profesor).filter(Profesor.id_Profesor == materie.id_Profesor).first()
+        return profesor
     finally:
         db.close()
 

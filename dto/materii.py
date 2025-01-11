@@ -8,7 +8,8 @@ class MaterieBase(BaseModel):
     nume: str
     id_Profesor: int
     tip_examen: str
-    an_studiu: int
+    id_Specializare: int
+    id_An_Studiu: int
     semestru: int = Field(..., ge=1, le=8, description="Semestrul trebuie să fie între 1 și 8")
 
     @validator('nume')

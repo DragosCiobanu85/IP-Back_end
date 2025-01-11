@@ -14,6 +14,7 @@ def create_profesor(profesor: ProfesorCreate):
         return db_profesor
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
 
 # Endpoint pentru a obține toți profesorii
 @router.get("/profesori/", response_model=List[ProfesorResponse])
