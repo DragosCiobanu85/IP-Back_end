@@ -6,7 +6,8 @@ from repository.cereri import insert_cerere, get_all_cereri, update_cerere, dele
 from auth import get_current_user_id, get_current_user
 from repository.studenti import get_student_by_user_id
 from fastapi import Depends
-from models import Cerere, User
+from models import Cerere, User, Status
+import logging
 
 router = APIRouter()
 
@@ -27,6 +28,31 @@ def create_cerere(
 
         # Găsim studentul pe baza id_user al utilizatorului curent
         student = get_student_by_user_id(current_user.id_user)
+
+        status_in_asteptare = db.query(Status).filter(Status.nume == 'in asteptare').first()
+        status_acceptata = db.query(Status).filter(Status.nume == 'acceptata').first()
+
+        if not status_in_asteptare or not status_acceptata:
+            raise HTTPException(status_code=404, detail="Statusurile 'in asteptare' sau 'acceptata' nu au fost găsite.")
+        
+        # Verificăm dacă există deja o cerere în așteptare sau acceptată pentru aceeași materie și grupă
+        existing_request = db.query(Cerere).filter(
+            Cerere.id_Facultate == cerere_data.id_Facultate,
+            Cerere.id_Grupa == student.id_Grupa,
+            Cerere.id_Materie == cerere_data.id_Materie,
+            Cerere.id_Status.in_([status_in_asteptare.id_Status, status_acceptata.id_Status])  # Verificăm cererile cu statusurile 'in asteptare' și 'acceptata'
+        ).first()
+
+        if existing_request:
+            raise HTTPException(
+                status_code=400,
+                detail="Există deja o cerere în așteptare sau acceptată pentru această materie și grupă. Te rugăm să aștepți până când cererea anterioară este procesată."
+            )
+        
+
+        status_asteptare = db.query(Status).filter(Status.nume == 'in asteptare').first()
+        if not status_asteptare:
+            raise HTTPException(status_code=404, detail="Statusul 'in asteptare' nu a fost găsit.")
         
         # Verificăm dacă am găsit studentul
         if student:
@@ -44,14 +70,17 @@ def create_cerere(
             id_Materie=cerere_data.id_Materie,
             id_Student=student.id_Student, 
             id_Grupa=student.id_Grupa, # Autocompletăm id_grupa
-            data=cerere_data.data
+            data=cerere_data.data,
+            id_Status=status_asteptare.id_Status
         )
 
         print(f"Creare cerere cu id_Student: {student.id_Student}, id_Profesor: {cerere_data.id_Profesor}")
-
+        print(f"Cerere salvată: {new_cerere}")
         db.add(new_cerere)
         db.commit()
         db.refresh(new_cerere)
+
+        
         print(f"Cerere creată cu id: {new_cerere.id_Cerere}")
         return new_cerere
 
@@ -89,6 +118,52 @@ def update_cerere_endpoint(cerere_id: int, cerere: CerereUpdate, current_user: U
         raise HTTPException(status_code=404, detail="Cerere not found")
     
     return updated_cerere
+
+
+@router.put("/cereri/{cerere_id}/update-status-anulata")
+def update_cerere_status(cerere_id: int):
+    db=SessionLocal()
+    # Căutăm cererea
+    cerere = db.query(Cerere).filter(Cerere.id_Cerere == cerere_id).first()
+    if not cerere:
+        raise HTTPException(status_code=404, detail="Cererea nu a fost găsită.")
+    
+    # Actualizăm statusul
+    status = db.query(Status).filter(Status.nume == 'anulata').first()
+    if not status:
+        raise HTTPException(status_code=404, detail="Statusul 'anulata' nu a fost găsit.")
+    
+    # Actualizăm statusul cererii
+    cerere.id_Status = status.id_Status
+    
+    # Dacă vrei să actualizezi și alte câmpuri
+
+    db.commit()
+    db.refresh(cerere)
+    return cerere
+
+@router.put("/cereri/{cerere_id}/update-status-respinsa")
+def update_cerere_status(cerere_id: int):
+    db=SessionLocal()
+    # Căutăm cererea
+    cerere = db.query(Cerere).filter(Cerere.id_Cerere == cerere_id).first()
+    if not cerere:
+        raise HTTPException(status_code=404, detail="Cererea nu a fost găsită.")
+    
+    # Actualizăm statusul
+    status = db.query(Status).filter(Status.nume == 'respinsa').first()
+    if not status:
+        raise HTTPException(status_code=404, detail="Statusul 'anulata' nu a fost găsit.")
+    
+    # Actualizăm statusul cererii
+    cerere.id_Status = status.id_Status
+    
+    # Dacă vrei să actualizezi și alte câmpuri
+
+    db.commit()
+    db.refresh(cerere)
+    return cerere
+
 
 # Endpoint pentru ștergerea unei cereri
 @router.delete("/cereri/{cerere_id}", response_model=CerereResponse)

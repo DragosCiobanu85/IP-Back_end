@@ -25,8 +25,7 @@ def read_students():
 @router.get("/facultate/authenticated", response_model=FacultateResponse)
 def get_facultate_for_current_student(current_user: User = Depends(get_current_user)):
     facultate = get_facultate_by_student(current_user)
-    if not facultate:
-        raise HTTPException(status_code=404, detail="Facultatea nu a fost găsită pentru studentul autentificat.")
+
     return facultate
 
 @router.get("/grupa", response_model=GrupaResponse)
@@ -34,8 +33,7 @@ def get_student_grupa(current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         grupa = get_grupa_by_user( current_user.id_user)
-        if not grupa:
-            raise HTTPException(status_code=404, detail="Grupa nu a fost găsită.")
+
         return grupa
     finally:
         db.close()

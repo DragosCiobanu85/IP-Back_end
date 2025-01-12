@@ -7,6 +7,7 @@ class CerereBase(BaseModel):
     id_Facultate: int
     id_Materie: int
     data: date
+
     
 # Model pentru crearea unei cereri
 class CerereCreate(CerereBase):
@@ -24,6 +25,7 @@ class CerereResponse(CerereBase):
     id_Cerere: int
     id_Student: int
     id_Grupa: int
+    id_Status: int
 
     class Config:
         from_attributes = True

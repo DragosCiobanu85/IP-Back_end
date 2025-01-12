@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware  # Adăugăm importul pentru 
 
 from database import SessionLocal, engine
 import models
-from routes import facultati, studenti, profesori, materii, examene, cereri, useri, grupe, sali, specializare, an_studiu
+from routes import facultati, studenti, profesori, materii, examene, cereri, useri, grupe, sali, specializare, an_studiu, status
 
 
 
@@ -41,6 +41,7 @@ app.include_router(grupe.router, prefix="/grupe", tags=["Grupe"])
 app.include_router(sali.router, prefix="/sali", tags=["Sali"])
 app.include_router(specializare.router, prefix="/specializare", tags=["Specializare"])
 app.include_router(an_studiu.router, prefix="/anstudiu", tags=["An_Sudiu"])
+app.include_router(status.router, prefix="/status", tags=["Status"])
 
 # Test: rulează aplicația FastAPI
 if __name__ == "__main__":

@@ -96,16 +96,14 @@ class Cerere(Base):
     id_Student = Column(Integer, ForeignKey('Student.id_Student'), nullable=False)
     id_Grupa = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
     data = Column(Date, nullable=False)
-    status = Column(VARCHAR(20), nullable=True)
+    id_Status = Column(Integer, ForeignKey('Status.id_Status'), nullable=False)
     grupa = relationship('Grupa')
     facultate = relationship('Facultate')
     materie = relationship('Materie')
     profesor = relationship('Profesor')
     student = relationship('Student')
-    # Constrângerea pentru status
-    __table_args__ = (
-        CheckConstraint("status IN ('in asteptare', 'acceptata', 'respinsa')", name="check_cerere_status"),
-    )
+    status = relationship('Status')
+
 
 # Examen Table
 class Examen(Base):
@@ -156,6 +154,11 @@ class An_Studiu(Base):
     __tablename__ = 'An_Studiu'
     id_An_Studiu = Column(Integer, primary_key=True, autoincrement=True)
     an_studiu = Column(Integer, nullable=False)
+
+class Status(Base):
+    __tablename__ = 'Status'
+    id_Status = Column(Integer, primary_key=True, autoincrement=True)
+    nume = Column(VARCHAR(50), nullable=False)
 
 
 

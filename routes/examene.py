@@ -1,12 +1,15 @@
+from datetime import timedelta
 from fastapi import APIRouter, HTTPException
 from typing import List
-from models import Examen, User
+from models import Examen, User, Cerere, Status
 from fastapi import Depends
 from auth import get_current_user
 from database import SessionLocal
 from repository.profesori import get_profesor_by_user_id
 from dto.examene import ExamenCreate, ExamenUpdate, ExamenResponse
 from repository.examene import insert_examen, get_all_examene, update_examen, delete_examen
+
+from datetime import datetime, timedelta
 
 router = APIRouter()
 # Endpoint pentru a adăuga un examen
@@ -51,6 +54,15 @@ def create_examen(
 
         print(f"Creare examen cu id_Profesor: {profesor.id_Profesor}, id_Materie: {examen_data.id_Materie}")
 
+        cerere = db.query(Cerere).filter(Cerere.id_Cerere == examen_data.id_Cerere).first()
+        if cerere:
+            status = db.query(Status).filter(Status.nume == 'acceptata').first()
+            if status:
+                cerere.id_Status = status.id_Status
+                db.commit()  # Confirmă schimbarea statusului
+            else:
+                raise HTTPException(status_code=404, detail="Statusul 'acceptata' nu a fost găsit.")
+
         # Adăugăm examenul în baza de date
         db.add(new_examen)
         db.commit()
@@ -73,6 +85,62 @@ def create_examen(
 @router.get("/examene/", response_model=List[ExamenResponse])
 def read_examene():
     return get_all_examene()
+
+
+
+
+
+
+
+@router.get("/examene/sala/{room_id}")
+def get_exam_times_for_room(
+    room_id: int, 
+    requested_date: str  # Data cererii
+):
+    db = SessionLocal()  # Deschidem o sesiune de bază de date
+    try:
+        # Convertim requested_date într-un obiect datetime
+        requested_date_obj = datetime.strptime(requested_date, "%Y-%m-%d").date()
+
+        # Obținem toate examenele programate pentru sala respectivă
+        exams = db.query(Examen).filter(Examen.id_Sala == room_id).all()
+
+        
+        # Definim orele disponibile
+        all_times = [f"{8 + i}:00:00" for i in range(11)]  # Orele posibile de la 8:00 la 18:00
+        available_times = set(all_times)  # Set pentru a facilita eliminarea orelor ocupate
+        
+        # Extragem orele deja ocupate și le eliminăm din setul de ore disponibile
+        for exam in exams:
+            start_time = exam.ora
+            exam_date = exam.data  # Data examenului
+            # Verificăm doar examenele care sunt programate în aceeași dată
+            if exam_date == requested_date_obj:
+                # Creăm un datetime complet combinând data și ora examenului
+                start_datetime = datetime.combine(exam_date, start_time)
+                # Adăugăm 2 ore la start_time folosind timedelta
+                end_datetime = start_datetime + timedelta(hours=2)
+
+                # Eliminăm ora anterioră și intervalul de 2 ore din setul de ore disponibile
+                current_time = start_datetime - timedelta(hours=1)  # Ora x-1 (ora anterioară)
+                while current_time < end_datetime:
+                    available_times.discard(current_time.strftime("%H:%M:%S"))  # Eliminăm ora ocupată
+                    current_time += timedelta(hours=1)
+
+        return list(available_times)
+    except Exception as e:
+        print(f"Eroare la procesarea cererii: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Eroare la obținerea examenelor: {str(e)}")
+    finally:
+        db.close()
+
+
+
+
+
+
+
+
 
 
 # Endpoint pentru actualizarea unui examen
