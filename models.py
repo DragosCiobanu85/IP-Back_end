@@ -95,6 +95,7 @@ class Cerere(Base):
     id_Profesor = Column(Integer, ForeignKey('Profesor.id_Profesor'), nullable=False)
     id_Student = Column(Integer, ForeignKey('Student.id_Student'), nullable=False)
     id_Grupa = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
+    id_Specializare =  Column(Integer, ForeignKey('Specializare.id_Specializare'), nullable=False)
     data = Column(Date, nullable=False)
     id_Status = Column(Integer, ForeignKey('Status.id_Status'), nullable=False)
     grupa = relationship('Grupa')
@@ -103,6 +104,7 @@ class Cerere(Base):
     profesor = relationship('Profesor')
     student = relationship('Student')
     status = relationship('Status')
+    specializare = relationship('Specializare')
 
 
 # Examen Table
@@ -114,6 +116,7 @@ class Examen(Base):
     id_Profesor_1 = Column(Integer, ForeignKey('Profesor.id_Profesor'),nullable=False)  # Foreign Key to Profesor for Assistant
     id_Materie = Column(Integer, ForeignKey('Materie.id_Materie'), nullable=False)
     id_Grupa = Column(Integer, ForeignKey('Grupa.id_Grupa'), nullable=False)
+    id_Specializare =  Column(Integer, ForeignKey('Specializare.id_Specializare'), nullable=False)
     data = Column(Date, nullable=False)
     id_Sala = Column(Integer, ForeignKey('Sala.id_Sala'),nullable=False)
     ora = Column(Time, nullable=False)
@@ -125,6 +128,7 @@ class Examen(Base):
     profesor = relationship('Profesor', foreign_keys=[id_Profesor])  # Profesor principal
     asistent = relationship('Profesor', foreign_keys=[id_Profesor_1])
     cerere = relationship('Cerere')
+    specializare = relationship('Specializare')
 
 # Facultate_Profesor Table (Link Table)
 class FacultateProfesor(Base):

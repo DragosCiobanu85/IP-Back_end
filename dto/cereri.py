@@ -7,6 +7,8 @@ class CerereBase(BaseModel):
     id_Facultate: int
     id_Materie: int
     data: date
+    id_Specializare: int
+    id_Grupa: int
 
     
 # Model pentru crearea unei cereri
@@ -19,12 +21,13 @@ class CerereUpdate(BaseModel):
     id_Profesor: int
     id_Materie: int
     data: date
+    id_Specializare: int
+    id_Grupa: int
 
 # Model pentru răspunsul unui endpoint
 class CerereResponse(CerereBase):
     id_Cerere: int
     id_Student: int
-    id_Grupa: int
     id_Status: int
 
     class Config:

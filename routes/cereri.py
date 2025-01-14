@@ -38,7 +38,7 @@ def create_cerere(
         # Verificăm dacă există deja o cerere în așteptare sau acceptată pentru aceeași materie și grupă
         existing_request = db.query(Cerere).filter(
             Cerere.id_Facultate == cerere_data.id_Facultate,
-            Cerere.id_Grupa == student.id_Grupa,
+            Cerere.id_Grupa == cerere_data.id_Grupa,
             Cerere.id_Materie == cerere_data.id_Materie,
             Cerere.id_Status.in_([status_in_asteptare.id_Status, status_acceptata.id_Status])  # Verificăm cererile cu statusurile 'in asteptare' și 'acceptata'
         ).first()
@@ -69,7 +69,9 @@ def create_cerere(
             id_Facultate=cerere_data.id_Facultate,
             id_Materie=cerere_data.id_Materie,
             id_Student=student.id_Student, 
-            id_Grupa=student.id_Grupa, # Autocompletăm id_grupa
+            id_Grupa=cerere_data.id_Grupa, 
+            id_Specializare = cerere_data.id_Specializare,
+            # Autocompletăm id_grupa
             data=cerere_data.data,
             id_Status=status_asteptare.id_Status
         )

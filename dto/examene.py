@@ -9,6 +9,7 @@ class ExamenBase(BaseModel):
     id_Materie: int
     id_Grupa: int
     data: date
+    id_Specializare: int
     id_Sala: int
     ora: time 
     id_Cerere: int

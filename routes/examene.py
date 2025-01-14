@@ -46,6 +46,7 @@ def create_examen(
             id_Profesor_1=examen_data.id_Profesor_1,
             id_Profesor=profesor.id_Profesor,
             id_Materie=examen_data.id_Materie,
+            id_Specializare=examen_data.id_Specializare,
             data=examen_data.data,
             id_Sala=examen_data.id_Sala,
             ora=examen_data.ora,
@@ -88,14 +89,10 @@ def read_examene():
 
 
 
-
-
-
-
 @router.get("/examene/sala/{room_id}")
 def get_exam_times_for_room(
-    room_id: int, 
-    requested_date: str  # Data cererii
+    room_id: int,
+    requested_date: str,
 ):
     db = SessionLocal()  # Deschidem o sesiune de bază de date
     try:
@@ -103,36 +100,60 @@ def get_exam_times_for_room(
         requested_date_obj = datetime.strptime(requested_date, "%Y-%m-%d").date()
 
         # Obținem toate examenele programate pentru sala respectivă
-        exams = db.query(Examen).filter(Examen.id_Sala == room_id).all()
+        exams = (
+            db.query(Examen)
+            .filter(Examen.id_Sala == room_id, Examen.data == requested_date_obj)
+            .order_by(Examen.ora)
+            .all()
+        )
 
-        
-        # Definim orele disponibile
-        all_times = [f"{8 + i}:00:00" for i in range(11)]  # Orele posibile de la 8:00 la 18:00
-        available_times = set(all_times)  # Set pentru a facilita eliminarea orelor ocupate
-        
-        # Extragem orele deja ocupate și le eliminăm din setul de ore disponibile
+        # Construim toate orele posibile de la 8:00 la 18:00
+        all_times = [
+            datetime.combine(requested_date_obj, datetime.strptime(f"{8 + i}:00:00", "%H:%M:%S").time())
+            for i in range(11)
+        ]
+
+        # Ore indisponibile
+        unavailable_times = set()
+
+        # Marcam orele ocupate și intervalele de 2 ore
         for exam in exams:
-            start_time = exam.ora
-            exam_date = exam.data  # Data examenului
-            # Verificăm doar examenele care sunt programate în aceeași dată
-            if exam_date == requested_date_obj:
-                # Creăm un datetime complet combinând data și ora examenului
-                start_datetime = datetime.combine(exam_date, start_time)
-                # Adăugăm 2 ore la start_time folosind timedelta
-                end_datetime = start_datetime + timedelta(hours=2)
+            start_datetime = datetime.combine(requested_date_obj, exam.ora)
+            end_datetime = start_datetime + timedelta(hours=2)
 
-                # Eliminăm ora anterioră și intervalul de 2 ore din setul de ore disponibile
-                current_time = start_datetime - timedelta(hours=1)  # Ora x-1 (ora anterioară)
-                while current_time < end_datetime:
-                    available_times.discard(current_time.strftime("%H:%M:%S"))  # Eliminăm ora ocupată
-                    current_time += timedelta(hours=1)
+            # Excludem orele din intervalul [ora - 1, ora + 2)
+            current_time = start_datetime - timedelta(hours=1)
+            while current_time < end_datetime:
+                unavailable_times.add(current_time)
+                current_time += timedelta(hours=1)
 
-        return list(available_times)
+        # Validăm orele disponibile
+        available_times = []
+        for time in all_times:
+            if time in unavailable_times:
+                continue
+
+            # Verificăm dacă există cel puțin 2 ore libere înainte sau după
+            prev_time_1 = time - timedelta(hours=1)
+            prev_time_2 = time - timedelta(hours=2)
+            next_time_1 = time + timedelta(hours=1)
+            next_time_2 = time + timedelta(hours=2)
+
+            if (
+                (prev_time_1 not in unavailable_times or prev_time_2 not in unavailable_times)
+                or (next_time_1 not in unavailable_times or next_time_2 not in unavailable_times)
+            ):
+                available_times.append(time.strftime("%H:%M:%S"))
+
+        return available_times
+
     except Exception as e:
         print(f"Eroare la procesarea cererii: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Eroare la obținerea examenelor: {str(e)}")
     finally:
         db.close()
+
+
 
 
 

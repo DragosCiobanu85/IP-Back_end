@@ -28,8 +28,9 @@ def insert_cerere(cerere: CerereCreate, current_user: User = Depends(get_current
         db_cerere = Cerere(
             id_Profesor=cerere.id_Profesor,
             id_Facultate=cerere.id_Facultate,
+            id_Specializare=cerere.id_Specializare,
             id_Student=student.id_Student,
-            id_Grupa= student.id_Grupa,  # Completează automat id_Student
+            id_Grupa= cerere.id_Grupa,  # Completează automat id_Student
             id_Materie=cerere.id_Materie,
             data=cerere.data,
             id_Status=status.id_Status
@@ -119,7 +120,8 @@ def update_cerere(cerere_id: int, cerere_data: CerereUpdate, current_user: User 
         cerere.id_Profesor = cerere_data.id_Profesor
         cerere.id_Materie = cerere_data.id_Materie
         cerere.id_Student = student.id_Student  # Autocompletare automată
-        cerere.id_Grupa = grupa.id_Grupa        # Autocompletare automată
+        cerere.id_Grupa = cerere.id_Grupa  
+        cerere.id_Specializare=cerere_data.id_Specializare      # Autocompletare automată
         cerere.data = cerere_data.data
 
         # Salvează modificările
